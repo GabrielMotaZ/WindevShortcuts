@@ -1,0 +1,2 @@
+# WindevShortcuts
+Shortcuts for Windev
