@@ -1,31 +1,39 @@
-objeto = "linhaTelefonica" # nome da classe
+objeto = "endereco" # nome da classe
 select = """
-	id,
-	bitAtivo,
-	chipMovel,
-	linhaFixa,
-	pacoteDados,
-	operadora,
-	idFuncionario,
-	idFornecedor,
-	idEquipamento,
-	idDepartamento
+       [IDCliente]
+           ,[CEP]
+           ,[logradouro]
+           ,[numero]
+           ,[complemento]
+           ,[bairro]
+           ,[cidade]
+           ,[UF]
+           ,[cadastroAtualizadoERP]
+           ,[celularContato]
+           ,[telefoneContato]
+           ,[tipoEndereco]
+           ,[principal]
 """ # select do banco de dados
-nomeTabela = "LinhaTelefonica"
+select = select.replace("[","")
+select = select.replace("]","")
+nomeTabela = "Endereco"
 
 #
 #Listar
 #
 
-print("""Listar(array{0} is array of {0}, {1} is {0})
+print("""PROCEDURE Listar(array{0} is array of {0}, {1} is {0})
 
 base is BaseDeDados
 conexao is connection = base.conectar()
 dados is data source
 
-str is string = [""".format(objeto.capitalize(),objeto))
+str is string = [
+SELECT""".format(objeto.capitalize(),objeto))
 print(select)
-print("""FROM {0}]\n\n""".format(nomeTabela))
+print("""   FROM {0}
+	WHERE 1 = 1
+]\n\n""".format(nomeTabela))
 
 select = select.replace("	", "")
 select = select.replace("\n", "")
@@ -39,13 +47,20 @@ for i in select:
 	str += CR + "AND {1} LIKE '%" + {0}.{1} + "%'"
 END""".format(objeto, i) + "\n")
 
-print("""hreadfirst
-for each dados""")
+print("resultado is boolean = base.ExecutarComando(str,conexao,dados)")
+
+
+print("""
+IF HNbRec(dados)=0 THEN
+    resultado = False
+ELSE
+    hreadfirst(dados)
+    for each dados""")
 
 for i in select:
-    print("	"+objeto+"."+i+" = dados."+i)
+    print("		"+objeto+"."+i+" = dados."+i)
 
-print("\n	ArrayAdd(" + objeto.capitalize() + ", " + objeto + ")")
+print("\n	ArrayAdd(array" + nomeTabela + ", " + objeto + ")\n	end")
 print("end")
 
 print("""\nbase.desconectar(conexao)
@@ -58,7 +73,7 @@ RESULT resultado\n\n\n""")
 #
 
 
-print("""Cadastrar({0} is {1})
+print("""PROCEDURE Cadastrar({0} is {1})
 
 base is BaseDeDados
 conexao is connection = base.conectar()
@@ -105,9 +120,9 @@ RESULT resultado\n\n\n""")
 #Atualizar
 #
 
-print("""Atualizar(teste* is Teste*)
+print("""PROCEDURE Atualizar({0} is {0})
 
-if teste.id = 0 then
+if {1}.id = 0 then
     RESULT False
 end
 
@@ -115,18 +130,40 @@ base is BaseDeDados
 conexao is connection = base.conectar()
 
 str is string = [
-    UPDATE {0}
-    SET""".format(nomeTabela))
+    UPDATE {1}
+    SET
+    """.format(objeto, nomeTabela))
 
+
+counter = 1
 for i in select:
-    print("""IF {0}.{1} <> 0 AND {0}.{1} <> "" THEN
-	str += "{1} = " + {0}.{1}
-END""".format(objeto, i) + "\n")
+    print("	{0} = %".format(i) + str(counter), end = "")
+    if counter != len(select):
+        print(",")
+    else:
+        print("")
+    counter += 1
 
 print("""
-str += CR + "WHERE id = " + teste.id
+    where id = %{0}
+]
 
+""".format(counter))
+
+print("str = stringbuild(str, ")
+counter = 1
+for i in select:
+    print("	"+objeto+"."+i+' <> "" and '+objeto+"."+i+""" <> 0 ? "'" + """+objeto+"."+i+""" + "'" """, end = "")
+    if counter != len(select):
+        print(",")
+    else:
+        print(")")
+    counter += 1
+
+print("""
 resultado is boolean = base.ExecutarComando(str,conexao)
+
+base.desconectar(conexao)
 
 RESULT resultado
 """)
