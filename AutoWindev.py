@@ -153,7 +153,7 @@ print("""
 print("str = stringbuild(str, ")
 counter = 1
 for i in select:
-    print("	"+objeto+"."+i+' <> "" and '+objeto+"."+i+""" <> 0 ? "'" + """+objeto+"."+i+""" + "'" """, end = "")
+    print("	"+objeto+"."+i+' <> "" and '+objeto+"."+i+""" <> 0 ? "'" + """+objeto+"."+i+""" + "'" ELSE """+ '"{0}.{1}"'.format(objeto, i), end = "")
     if counter != len(select):
         print(",")
     else:
