@@ -1,22 +1,11 @@
-objeto = "endereco" # nome da classe
+objeto = "carteiraGrupoEconomico" # nome da classe
 select = """
-       [IDCliente]
-           ,[CEP]
-           ,[logradouro]
-           ,[numero]
-           ,[complemento]
-           ,[bairro]
-           ,[cidade]
-           ,[UF]
-           ,[cadastroAtualizadoERP]
-           ,[celularContato]
-           ,[telefoneContato]
-           ,[tipoEndereco]
-           ,[principal]
+[IDLogin]
+      ,[IDGrupoEconomico]
 """ # select do banco de dados
 select = select.replace("[","")
 select = select.replace("]","")
-nomeTabela = "Endereco"
+nomeTabela = objeto[0].upper() + objeto[1:]
 
 #
 #Listar
@@ -29,7 +18,7 @@ conexao is connection = base.conectar()
 dados is data source
 
 str is string = [
-SELECT""".format(objeto.capitalize(),objeto))
+SELECT""".format(nomeTabela,objeto))
 print(select)
 print("""   FROM {0}
 	WHERE 1 = 1
@@ -167,3 +156,4 @@ base.desconectar(conexao)
 
 RESULT resultado
 """)
+input()
